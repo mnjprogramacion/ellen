@@ -29,5 +29,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Fase 3.unity
     guid: a639f7fdfbe3112409f1a1412bfb0ab4
+  - enabled: 1
+    path: Assets/Fase 4.unity
+    guid: 205865bc80eee97438a829f04c9fb5ef
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
