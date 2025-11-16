@@ -1,6 +1,104 @@
 using UnityEngine;
+using TMPro;
 
-public class ScoreManager
+public class ScoreManager : MonoBehaviour
 {
-    
+    public static ScoreManager Instance;
+
+    public int currentScore = 0;
+    public TextMeshProUGUI scoreText;
+    private GameObject canvasObj;
+
+    private void Awake()
+    {
+        // Singleton
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+
+    private void Start()
+    {
+        // Si no hay scoreText asignado, lo crea automáticamente en la UI
+        canvasObj = GameObject.Find("Canvas");
+        if (scoreText == null)
+        {
+            if (canvasObj == null)
+            {
+                canvasObj = new GameObject("Canvas");
+                var canvas = canvasObj.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
+                canvasObj.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+                DontDestroyOnLoad(canvasObj); // Hacer persistente el Canvas
+            }
+            else
+            {
+                DontDestroyOnLoad(canvasObj); // Si ya existe, hacerlo persistente
+            }
+
+            GameObject textObj = new GameObject("ScoreText");
+            textObj.transform.SetParent(canvasObj.transform);
+            scoreText = textObj.AddComponent<TextMeshProUGUI>();
+            scoreText.fontSize = 36;
+            scoreText.alignment = TextAlignmentOptions.TopRight;
+            scoreText.rectTransform.anchorMin = new Vector2(1, 1);
+            scoreText.rectTransform.anchorMax = new Vector2(1, 1);
+            scoreText.rectTransform.pivot = new Vector2(1, 1);
+            scoreText.rectTransform.anchoredPosition = new Vector2(-20, -20);
+            DontDestroyOnLoad(textObj); // Hacer persistente el ScoreText
+        }
+        else
+        {
+            DontDestroyOnLoad(scoreText.gameObject); // Si ya existe, hacerlo persistente
+        }
+
+        UpdateScoreUI();
+    }
+
+    private void Update()
+    {
+        // Simulación de eventos de puntuación con teclas
+        if (Input.GetKeyDown(KeyCode.E)) // Matar enemigo
+            AddPoints(100);
+
+        if (Input.GetKeyDown(KeyCode.C)) // Romper caja
+            AddPoints(25);
+
+        if (Input.GetKeyDown(KeyCode.L)) // Completar nivel
+            AddPoints(500);
+
+        if (Input.GetKeyDown(KeyCode.B)) // Bonus por rapidez
+            AddPoints(200);
+
+        if (Input.GetKeyDown(KeyCode.R)) // Reiniciar puntuación
+            ResetScore();
+    }
+
+    public void AddPoints(int points)
+    {
+        currentScore += points;
+        UpdateScoreUI();
+    }
+
+    public void ResetScore()
+    {
+        currentScore = 0;
+        UpdateScoreUI();
+    }
+
+    private void UpdateScoreUI()
+    {
+        if (scoreText != null)
+        {
+            scoreText.text = "Puntuación: " + currentScore;
+        }
+    }
 }
