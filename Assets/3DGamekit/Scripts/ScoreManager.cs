@@ -9,6 +9,11 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI scoreText;
     private GameObject canvasObj;
 
+    // Prefabs de referencia para asignar en el inspector
+    public GameObject enemyPrefab1;
+    public GameObject enemyPrefab2;
+    public GameObject boxPrefab;
+
     private void Awake()
     {
         // Singleton
@@ -65,13 +70,7 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
-        // Simulación de eventos de puntuación con teclas
-        if (Input.GetKeyDown(KeyCode.E)) // Matar enemigo
-            AddPoints(100);
-
-        if (Input.GetKeyDown(KeyCode.C)) // Romper caja
-            AddPoints(25);
-
+        // Simulación de eventos de puntuación con teclas SOLO para nivel y bonus
         if (Input.GetKeyDown(KeyCode.L)) // Completar nivel
             AddPoints(500);
 
