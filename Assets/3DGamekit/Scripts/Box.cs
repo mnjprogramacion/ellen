@@ -3,12 +3,18 @@ using UnityEngine;
 public class Box : MonoBehaviour
 {
     public int points = 300;
+    private bool opened = false;
 
-    private void OnDestroy()
+    private void OnTriggerEnter(Collider other)
     {
-        if (ScoreManager.Instance != null)
+        if (!opened && other.CompareTag("Player"))
         {
-            ScoreManager.Instance.AddPoints(points);
+            opened = true;
+            if (ScoreManager.Instance != null)
+            {
+                ScoreManager.Instance.AddPoints(points);
+            }
+            Destroy(gameObject); // El cofre desaparece al abrirse
         }
     }
 }

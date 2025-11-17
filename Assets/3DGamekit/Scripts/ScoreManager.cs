@@ -71,9 +71,6 @@ public class ScoreManager : MonoBehaviour
     private void Update()
     {
         // Simulación de eventos de puntuación con teclas SOLO para nivel y bonus
-        if (Input.GetKeyDown(KeyCode.L)) // Completar nivel
-            AddPoints(500);
-
         if (Input.GetKeyDown(KeyCode.B)) // Bonus por rapidez
             AddPoints(200);
 
