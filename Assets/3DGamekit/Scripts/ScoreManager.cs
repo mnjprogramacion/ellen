@@ -14,6 +14,9 @@ public class ScoreManager : MonoBehaviour
     public GameObject enemyPrefab2;
     public GameObject boxPrefab;
 
+    // Control para evitar sumar puntos de nivel más de una vez por escena
+    private int lastSceneLevelScore = -1;
+
     private void Awake()
     {
         // Singleton
@@ -70,12 +73,23 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
-        // Simulación de eventos de puntuación con teclas SOLO para nivel y bonus
+        // Simulación de eventos de puntuación con teclas SOLO para bonus
         if (Input.GetKeyDown(KeyCode.B)) // Bonus por rapidez
             AddPoints(200);
 
         if (Input.GetKeyDown(KeyCode.R)) // Reiniciar puntuación
             ResetScore();
+    }
+
+    // Método para sumar puntos de nivel solo una vez por escena
+    public void AddLevelCompletePoints(int points)
+    {
+        int sceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+        if (lastSceneLevelScore != sceneIndex)
+        {
+            lastSceneLevelScore = sceneIndex;
+            AddPoints(points);
+        }
     }
 
     public void AddPoints(int points)

@@ -2,19 +2,20 @@ using UnityEngine;
 
 public class TransitionStartScore : MonoBehaviour
 {
-    public int levelCompletePoints = 1000;
+    public int levelCompletePoints = 500;
     private bool scored = false;
 
     private void OnTriggerEnter(Collider other)
     {
-        // Comprueba si el objeto que entra es el jugador
+        // Solo suma puntos la primera vez que el jugador entra
         if (!scored && other.CompareTag("Player"))
         {
-            scored = true; // Evita sumar puntos múltiples
+            scored = true;
             if (ScoreManager.Instance != null)
             {
-                ScoreManager.Instance.AddPoints(levelCompletePoints);
+                ScoreManager.Instance.AddLevelCompletePoints(levelCompletePoints);
             }
+            Destroy(gameObject); // El objeto se destruye tras sumar puntos
         }
     }
 }
