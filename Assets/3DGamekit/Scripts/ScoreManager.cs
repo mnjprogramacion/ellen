@@ -14,7 +14,7 @@ public class ScoreManager : MonoBehaviour
     public GameObject enemyPrefab2;
     public GameObject boxPrefab;
 
-    // Control para evitar sumar puntos de nivel m醩 de una vez por escena
+    // Control para evitar sumar puntos de nivel m谩s de una vez por escena
     private int lastSceneLevelScore = -1;
 
     private void Awake()
@@ -23,6 +23,7 @@ public class ScoreManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            transform.SetParent(null); // Asegurar que sea objeto ra铆z para que DontDestroyOnLoad funcione correctamente
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -34,7 +35,7 @@ public class ScoreManager : MonoBehaviour
 
     private void Start()
     {
-        // Si no hay scoreText asignado, lo crea autom醫icamente en la UI
+        // Si no hay scoreText asignado, lo crea autom谩ticamente en la UI
         canvasObj = GameObject.Find("Canvas");
         if (scoreText == null)
         {
@@ -73,27 +74,33 @@ public class ScoreManager : MonoBehaviour
 
     private void Update()
     {
-        // Simulaci髇 de eventos de puntuaci髇 con teclas SOLO para bonus
+        // Simulaci贸n de eventos de puntuaci贸n con teclas SOLO para bonus
         if (Input.GetKeyDown(KeyCode.B)) // Bonus por rapidez
             AddPoints(200);
 
-        if (Input.GetKeyDown(KeyCode.R)) // Reiniciar puntuaci髇
+        if (Input.GetKeyDown(KeyCode.R)) // Reiniciar puntuaci贸n
             ResetScore();
     }
 
-    // M閠odo para sumar puntos de nivel solo una vez por escena
+    // M茅todo para sumar puntos de nivel solo una vez por escena
     public void AddLevelCompletePoints(int points)
     {
         int sceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;
+        Debug.Log($"AddLevelCompletePoints llamado. Puntos: {points}, SceneIndex: {sceneIndex}, LastSceneLevelScore: {lastSceneLevelScore}");
         if (lastSceneLevelScore != sceneIndex)
         {
             lastSceneLevelScore = sceneIndex;
             AddPoints(points);
         }
+        else
+        {
+            Debug.Log("Puntos de nivel ya sumados para esta escena.");
+        }
     }
 
     public void AddPoints(int points)
     {
+        Debug.Log($"AddPoints llamado. Sumando {points} a currentScore {currentScore}. Nuevo total: {currentScore + points}");
         currentScore += points;
         UpdateScoreUI();
     }
@@ -108,7 +115,7 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoreText != null)
         {
-            scoreText.text = "Puntuaci髇: " + currentScore;
+            scoreText.text = "Puntuaci贸n: " + currentScore;
         }
     }
 }
