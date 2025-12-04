@@ -7,6 +7,7 @@ public class ScoreManager : MonoBehaviour
 
     public int currentScore = 0;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI timerText;
     private GameObject canvasObj;
 
     // Prefabs de referencia para asignar en el inspector
@@ -16,6 +17,12 @@ public class ScoreManager : MonoBehaviour
 
     // Control para evitar sumar puntos de nivel más de una vez por escena
     private int lastSceneLevelScore = -1;
+
+    // Sistema de bonus por tiempo
+    public int startingTimeBonus = 1000;      // Bonus inicial
+    public int timeBonusPenaltyPerMinute = 100; // Puntos que se restan por minuto
+    private float levelStartTime;              // Tiempo cuando empezó el nivel
+    private int currentTimeBonus;              // Bonus actual
 
     private void Awake()
     {
@@ -69,6 +76,27 @@ public class ScoreManager : MonoBehaviour
             DontDestroyOnLoad(scoreText.gameObject); // Si ya existe, hacerlo persistente
         }
 
+        // Crear el texto del cronómetro
+        if (timerText == null)
+        {
+            GameObject timerObj = new GameObject("TimerText");
+            timerObj.transform.SetParent(canvasObj.transform);
+            timerText = timerObj.AddComponent<TextMeshProUGUI>();
+            timerText.fontSize = 36;
+            timerText.alignment = TextAlignmentOptions.TopRight;
+            timerText.rectTransform.anchorMin = new Vector2(1, 1);
+            timerText.rectTransform.anchorMax = new Vector2(1, 1);
+            timerText.rectTransform.pivot = new Vector2(1, 1);
+            timerText.rectTransform.anchoredPosition = new Vector2(-20, -100); // Debajo del score
+            DontDestroyOnLoad(timerObj);
+        }
+        else
+        {
+            DontDestroyOnLoad(timerText.gameObject);
+        }
+
+        // Iniciar el cronómetro del nivel
+        ResetLevelTimer();
         UpdateScoreUI();
     }
 
@@ -80,6 +108,56 @@ public class ScoreManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.R)) // Reiniciar puntuación
             ResetScore();
+
+        // Actualizar el cronómetro y el bonus de tiempo
+        UpdateTimerUI();
+    }
+
+    // Reinicia el cronómetro al empezar un nuevo nivel
+    public void ResetLevelTimer()
+    {
+        levelStartTime = Time.time;
+        currentTimeBonus = startingTimeBonus;
+        Debug.Log($"Cronómetro reiniciado. Bonus inicial: {currentTimeBonus}");
+    }
+
+    // Obtiene el tiempo transcurrido en el nivel actual
+    public float GetLevelTime()
+    {
+        return Time.time - levelStartTime;
+    }
+
+    // Calcula el bonus de tiempo actual basado en el tiempo transcurrido
+    public int GetCurrentTimeBonus()
+    {
+        float elapsedMinutes = GetLevelTime() / 60f;
+        int penalty = Mathf.FloorToInt(elapsedMinutes) * timeBonusPenaltyPerMinute;
+        currentTimeBonus = Mathf.Max(0, startingTimeBonus - penalty);
+        return currentTimeBonus;
+    }
+
+    // Suma el bonus de tiempo actual a la puntuación
+    public int ClaimTimeBonus()
+    {
+        int bonus = GetCurrentTimeBonus();
+        if (bonus > 0)
+        {
+            Debug.Log($"Bonus de tiempo reclamado: {bonus} puntos");
+            AddPoints(bonus);
+        }
+        return bonus;
+    }
+
+    private void UpdateTimerUI()
+    {
+        if (timerText != null)
+        {
+            float elapsed = GetLevelTime();
+            int minutes = Mathf.FloorToInt(elapsed / 60f);
+            int seconds = Mathf.FloorToInt(elapsed % 60f);
+            int timeBonus = GetCurrentTimeBonus();
+            timerText.text = $"Tiempo:\n{minutes:00}:{seconds:00}\nBonus:\n{timeBonus}";
+        }
     }
 
     // Método para sumar puntos de nivel solo una vez por escena

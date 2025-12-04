@@ -1,20 +1,38 @@
 using UnityEngine;
+using Gamekit3D;
 
 public class Box : MonoBehaviour
 {
     public int points = 300;
-    private bool opened = false;
+    private bool scored = false;
 
-    private void OnTriggerEnter(Collider other)
+    private void Start()
     {
-        if (!opened && other.CompareTag("Player"))
+        // Buscar el componente Damageable en este objeto o en sus hijos
+        Damageable damageable = GetComponentInChildren<Damageable>();
+        
+        if (damageable != null)
         {
-            opened = true;
+            damageable.OnDeath.AddListener(OnBoxDestroyed);
+            Debug.Log($"Box: Damageable encontrado en {damageable.gameObject.name}");
+        }
+        else
+        {
+            Debug.LogWarning($"Box: No se encontró componente Damageable en {gameObject.name} ni en sus hijos");
+        }
+    }
+
+    // Este método se llama cuando la caja es destruida por el jugador
+    private void OnBoxDestroyed()
+    {
+        if (!scored)
+        {
+            scored = true;
             if (ScoreManager.Instance != null)
             {
                 ScoreManager.Instance.AddPoints(points);
+                Debug.Log($"Caja {gameObject.name} destruida. Sumando {points} puntos.");
             }
-            Destroy(gameObject); // El cofre desaparece al abrirse
         }
     }
 }
