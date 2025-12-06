@@ -30,7 +30,7 @@ public class Box : MonoBehaviour
             scored = true;
             if (ScoreManager.Instance != null)
             {
-                ScoreManager.Instance.AddPoints(points);
+                ScoreManager.Instance.AddBoxPoints(points);
                 Debug.Log($"Caja {gameObject.name} destruida. Sumando {points} puntos.");
             }
         }

@@ -6,9 +6,8 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance;
 
     public int currentScore = 0;
-    public TextMeshProUGUI scoreText;
-    public TextMeshProUGUI timerText;
-    private GameObject canvasObj;
+    public TextMeshProUGUI scoreText;  // Arrastra aquí tu TextMeshPro de puntuación
+    public TextMeshProUGUI timerText;  // Arrastra aquí tu TextMeshPro de cronómetro
 
     // Prefabs de referencia para asignar en el inspector
     public GameObject enemyPrefab1;
@@ -23,6 +22,12 @@ public class ScoreManager : MonoBehaviour
     public int timeBonusPenaltyPerMinute = 100; // Puntos que se restan por minuto
     private float levelStartTime;              // Tiempo cuando empezó el nivel
     private int currentTimeBonus;              // Bonus actual
+
+    // Desglose de puntuación
+    public int enemyPoints = 0;
+    public int boxPoints = 0;
+    public int levelPoints = 0;
+    public int timeBonusPoints = 0;
 
     private void Awake()
     {
@@ -42,55 +47,14 @@ public class ScoreManager : MonoBehaviour
 
     private void Start()
     {
-        // Si no hay scoreText asignado, lo crea automáticamente en la UI
-        canvasObj = GameObject.Find("Canvas");
-        if (scoreText == null)
+        // Si hay scoreText asignado, hacerlo persistente
+        if (scoreText != null)
         {
-            if (canvasObj == null)
-            {
-                canvasObj = new GameObject("Canvas");
-                var canvas = canvasObj.AddComponent<Canvas>();
-                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-                canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
-                canvasObj.AddComponent<UnityEngine.UI.GraphicRaycaster>();
-                DontDestroyOnLoad(canvasObj); // Hacer persistente el Canvas
-            }
-            else
-            {
-                DontDestroyOnLoad(canvasObj); // Si ya existe, hacerlo persistente
-            }
-
-            GameObject textObj = new GameObject("ScoreText");
-            textObj.transform.SetParent(canvasObj.transform);
-            scoreText = textObj.AddComponent<TextMeshProUGUI>();
-            scoreText.fontSize = 36;
-            scoreText.alignment = TextAlignmentOptions.TopRight;
-            scoreText.rectTransform.anchorMin = new Vector2(1, 1);
-            scoreText.rectTransform.anchorMax = new Vector2(1, 1);
-            scoreText.rectTransform.pivot = new Vector2(1, 1);
-            scoreText.rectTransform.anchoredPosition = new Vector2(-20, -20);
-            DontDestroyOnLoad(textObj); // Hacer persistente el ScoreText
-        }
-        else
-        {
-            DontDestroyOnLoad(scoreText.gameObject); // Si ya existe, hacerlo persistente
+            DontDestroyOnLoad(scoreText.gameObject);
         }
 
-        // Crear el texto del cronómetro
-        if (timerText == null)
-        {
-            GameObject timerObj = new GameObject("TimerText");
-            timerObj.transform.SetParent(canvasObj.transform);
-            timerText = timerObj.AddComponent<TextMeshProUGUI>();
-            timerText.fontSize = 36;
-            timerText.alignment = TextAlignmentOptions.TopRight;
-            timerText.rectTransform.anchorMin = new Vector2(1, 1);
-            timerText.rectTransform.anchorMax = new Vector2(1, 1);
-            timerText.rectTransform.pivot = new Vector2(1, 1);
-            timerText.rectTransform.anchoredPosition = new Vector2(-20, -100); // Debajo del score
-            DontDestroyOnLoad(timerObj);
-        }
-        else
+        // Si hay timerText asignado, hacerlo persistente
+        if (timerText != null)
         {
             DontDestroyOnLoad(timerText.gameObject);
         }
@@ -143,7 +107,7 @@ public class ScoreManager : MonoBehaviour
         if (bonus > 0)
         {
             Debug.Log($"Bonus de tiempo reclamado: {bonus} puntos");
-            AddPoints(bonus);
+            AddTimeBonusPoints(bonus);
         }
         return bonus;
     }
@@ -168,7 +132,7 @@ public class ScoreManager : MonoBehaviour
         if (lastSceneLevelScore != sceneIndex)
         {
             lastSceneLevelScore = sceneIndex;
-            AddPoints(points);
+            AddLevelPoints(points);
         }
         else
         {
@@ -183,9 +147,38 @@ public class ScoreManager : MonoBehaviour
         UpdateScoreUI();
     }
 
+    // Métodos específicos para cada tipo de puntuación (para el desglose)
+    public void AddEnemyPoints(int points)
+    {
+        enemyPoints += points;
+        AddPoints(points);
+    }
+
+    public void AddBoxPoints(int points)
+    {
+        boxPoints += points;
+        AddPoints(points);
+    }
+
+    public void AddLevelPoints(int points)
+    {
+        levelPoints += points;
+        AddPoints(points);
+    }
+
+    public void AddTimeBonusPoints(int points)
+    {
+        timeBonusPoints += points;
+        AddPoints(points);
+    }
+
     public void ResetScore()
     {
         currentScore = 0;
+        enemyPoints = 0;
+        boxPoints = 0;
+        levelPoints = 0;
+        timeBonusPoints = 0;
         UpdateScoreUI();
     }
 
@@ -193,7 +186,7 @@ public class ScoreManager : MonoBehaviour
     {
         if (scoreText != null)
         {
-            scoreText.text = "Puntuación: " + currentScore;
+            scoreText.text = "Puntos:\n" + currentScore;
         }
     }
 }

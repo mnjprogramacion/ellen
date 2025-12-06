@@ -8,11 +8,16 @@ public class Enemy : MonoBehaviour
 
     private void Start()
     {
-        // Buscar el componente Damageable y suscribirse al evento OnDeath
-        Damageable damageable = GetComponent<Damageable>();
+        // Buscar el componente Damageable en este objeto o en sus hijos
+        Damageable damageable = GetComponentInChildren<Damageable>();
         if (damageable != null)
         {
             damageable.OnDeath.AddListener(OnEnemyDeath);
+            Debug.Log($"Enemy: Damageable encontrado en {damageable.gameObject.name}");
+        }
+        else
+        {
+            Debug.LogWarning($"Enemy: No se encontró componente Damageable en {gameObject.name} ni en sus hijos");
         }
     }
 
@@ -24,7 +29,7 @@ public class Enemy : MonoBehaviour
             scored = true;
             if (ScoreManager.Instance != null)
             {
-                ScoreManager.Instance.AddPoints(points);
+                ScoreManager.Instance.AddEnemyPoints(points);
                 Debug.Log($"Enemigo {gameObject.name} muerto. Sumando {points} puntos.");
             }
         }
